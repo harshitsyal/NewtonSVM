@@ -4,21 +4,21 @@
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
  *
- * Written (W) 1999-2009 Soeren Sonnenburg
- * Copyright (C) 1999-2009 Fraunhofer Institute FIRST and Max-Planck-Society
+ * Written (W) 2012 Harshit Syal
+ * Copyright (C) 2006-2009 Fraunhofer Institute FIRST and Max-Planck-Society
  */
 
-#ifndef _NEWTONSVN_H___
+#ifndef _NEWTONSVM_H___
 #define _NEWTONSVM_H___
 
-#include <stdio.h>
 #include <shogun/lib/common.h>
-#include <shogun/features/DotFeatures.h>
 #include <shogun/machine/LinearMachine.h>
+#include <shogun/features/DotFeatures.h>
+#include <shogun/features/Labels.h>
 
 namespace shogun
 {
-
+/** @brief class NewtonSVM */
 class CNewtonSVM : public CLinearMachine
 {
 	public:
@@ -27,29 +27,83 @@ class CNewtonSVM : public CLinearMachine
 
 		/** constructor
 		 *
+		 * @param C constant C
 		 * @param traindat training features
-		 * @param trainlab labels for training features
+		 * @param trainlab labels for features
 		 */
-		CPerceptron(CDotFeatures* traindat, CLabels* trainlab,bool linear,float64_t lambda,Options opt);
-		virtual ~CPerceptron();
+		CNewtonSVM(float64_t l,int32_t itr, CDotFeatures* traindat, CLabels* trainlab);
+		virtual ~CNewtonSVM();
 
 		/** get classifier type
 		 *
-		 * @return classifier type PERCEPTRON
+		 * @return classifier type NewtonSVM
 		 */
-		virtual inline EClassifierType get_classifier_type() { return CT_NEWTONSVM; }
+		//virtual inline EClassifierType get_classifier_type() { return CT_NEWTONSVM; }
 
-		/// set maximum number of iterations
-		inline void set_max_iter(int32_t i)
-		{
-			max_iter=i;
-		}
+		/** set C
+		 *
+		 * @param c_neg new C constant for negatively labeled examples
+		 * @param c_pos new C constant for positively labeled examples
+		 *
+		 */
+		inline void set_lambda(float64_t l) { lambda=l; }
+
+		/** get C1
+		 *
+		 * @return C1
+		 */
+		inline float64_t get_lambda() { return lambda; }
+
+		/** get C2
+		 *
+		 * @return C2
+		 */
+
+		/** set if bias shall be enabled
+		 *
+		 * @param enable_bias if bias shall be enabled
+		 */
+		inline void set_bias_enabled(bool enable_bias) { use_bias=enable_bias; }
+
+		/** get if bias is enabled
+		 *
+		 * @return if bias is enabled
+		 */
+		inline bool get_bias_enabled() { return use_bias; }
+
+		/** set epsilon
+		 *
+		 * @param eps new epsilon
+		 */
+		inline void set_epsilon(float64_t eps) { epsilon=eps; }
+
+		/** get epsilon
+		 *
+		 * @return epsilon
+		 */
+		inline int32_t get_num_iter() {return num_iter;}
+		inline void set_num_iter(int32_t iter) { num_iter=iter; }
+		
+		inline float64_t get_epsilon() { return epsilon; }
 
 		/** @return object name */
 		inline virtual const char* get_name() const { return "NewtonSVM"; }
-		virtual bool train_machine(CFeatures* data=NULL);
+
+		inline void createDiagnolMatrix(float64_t *matrix,float64_t *v,int32_t size)
+		{		
+			for(int32_t i=0;i<size;i++)
+			for(int32_t j=0;j<size;j++)
+			{
+				if(i==j)
+				matrix[j*size+i]=v[i];
+				else
+				matrix[j*size+i]=0;
+		}
+	
+}
+
 	protected:
-		/** train classifier
+		/** train SVM classifier
 		 *
 		 * @param data training data (parameter can be avoided if distance or
 		 * kernel-based classifiers are used and distance/kernels are
@@ -57,27 +111,17 @@ class CNewtonSVM : public CLinearMachine
 		 *
 		 * @return whether training was successful
 		 */
-		
-		void obj_fun_linear(CDotFeatures* feat,float64_t *out);
-		void primal_svm_linear(CDotFeatures* feat)
-
+		virtual bool train_machine(CFeatures* data=NULL);
+		void obj_fun_linear(float64_t *w,CDotFeatures *features,float64_t *out,float64_t *obj,int32_t *sv,int32_t *numsv,float64_t *grad,SGVector<float64_t> v);
+		void line_search_linear(float64_t *w,float64_t *d,float64_t *out,SGVector<float64_t> Y,float64_t lambda,float64_t *tx);
 	protected:
-		
-		/** maximum number of iterations */
-		//out_len=x_d		
-		//w_len=x_d
-		//grad_len=x_d
-		//
-		int32_t max_iter,wlen,sol_len,x_n,x_d,*sv,sv_len=0;
-		float64_t* w,sol,grad;
-		flaot64_t b,obj;
-		SGVector<int32_t> train_labels;
-		
-		struct Options
-		{	bool cg=false,lin_cg=false;
-			int iter_max_Newton=20,cg_it=20;
-			float prec=1e-6,cg_prec=1e-4;
-		}
+		/** C1 */
+		float64_t lambda;
+		/** epsilon */
+		float64_t epsilon,prec;
+		int32_t x_n,x_d,num_iter;
+		/** if bias is used */
+		bool use_bias;
 };
 }
 #endif

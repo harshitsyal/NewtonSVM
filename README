@@ -1,0 +1,18 @@
+Newton SVM
+
+This repository contains 2 types of files :
+
+1. Source code in C++
+	-NewtonSVM.cpp 		//Source code for Newton SVM
+	-NewtonSVM.h		//header file for Newton SVM
+	-newtonTest.cpp		//Test file to check working of NewtonSVM
+
+2. Matlab Code	
+	-primal_svm.m		//contains linear and non linear version of Newton SVM
+	-test_primal_svm.m	//To test linear version of NewtonSVM
+
+
+For now i have only ported linear version of Newton SVM(As asked in project listed in gsoc) 
+The source code need some commenting and indentation, i am working on that..
+
+Please comment if you find any bug or memory leaks..

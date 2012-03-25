@@ -1,16 +1,20 @@
 global X K
 % Generating 3000 points in 100 dimensions
-X = randn(3000,100);
-Y = sign(X(:,1));
+%X = randn(3000,100);
+%Y = sign(X(:,1));
+%X=[1 5 9;2 6 10;20 7 11;4 8 12];
+X=[1 6 11;2 7 12;20 8 13;4 9 14;5 10 15];
+Y=[1;-1;1;1;-1];
+
 
 K = X*X';
 lambda = 1;
-[w,   b0 ]=primal_svm(1,Y,lambda); 
-[beta,b]=primal_svm(0,Y,lambda);
+
+[w b0]=primal_svm(1,Y,lambda) 
+%[beta,b]=primal_svm(0,Y,lambda);
 
 % The solutions are the same because the kernel is linear !
-fprintf("hello:\n");
-norm( K*beta+b - (X*w+b0)) 
+%norm( K*beta+b - (X*w+b0)) 
 
 % Try to now solve by conjugate gradient
 %opt.cg = 1;

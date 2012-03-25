@@ -66,8 +66,7 @@ function [sol,b,obj] = primal_svm(linear,Y,lambda,opt)
   % The last component of the solution is the bias b.
   b = sol(end);
   sol = sol(1:end-1);
-  %fprintf('len of obj:\n');
-  %size(obj)
+  fprintf('\n');
   
   
 function  [w,obj] = primal_svm_linear(Y,lambda,opt) 
@@ -80,7 +79,7 @@ function  [w,obj] = primal_svm_linear(Y,lambda,opt)
   w = zeros(d+1,1); % The last component of w is b.
   iter = 0;
   out = ones(n,1); % Vector containing 1-Y.*(X*w)
-  size(out)
+  
   while 1
     iter = iter + 1;
     if iter > opt.iter_max_Newton;
@@ -166,10 +165,7 @@ function [obj, grad, sv] = obj_fun_linear(w,Y,lambda,out)
   % Compute the objective function, its gradient and the set of support vectors
   % Out is supposed to contain 1-Y.*(X*w)
   global X
-  %fprintf("out=\n");
-  %size(out)
   out = max(0,out);
-  %size(w)
   w0 = w; w0(end) = 0;  % Do not penalize b
   obj = sum(out.^2)/2 + lambda*w0'*w0/2; % L2 penalization of the errors
   grad = lambda*w0 - [((out.*Y)'*X)'; sum(out.*Y)]; % Gradient
